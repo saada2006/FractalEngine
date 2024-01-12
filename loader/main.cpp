@@ -1,39 +1,41 @@
 #include <ftul/fractal_common.h>
 
+#include <ftul/dynamic_linking.h>
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
 
-#include <dlfcn.h>
+using namespace Fractal;
 
 typedef void (*ModuleProc)();
 
 struct EngineModule {
     ModuleProc init;
     ModuleProc cleanup;
-    void* addr;
+    DynamicLibrary _dynlib;
 };
 
 std::vector<EngineModule> find_all_modules() {
     std::vector<EngineModule> modules;
 
     auto path = std::filesystem::current_path();
+    // not the best solution, but works for now
     for (const auto& file : std::filesystem::directory_iterator(path)) {
-        auto libaddr = dlopen(file.path().c_str(), RTLD_NOW);
+        EngineModule mod;
+        mod._dynlib.open(file.path().c_str()); // force load all files, easier than checking for dll files only
 
-        if(!libaddr) {
+        if(!mod._dynlib.is_loaded()) {
             continue;
         }
 
-        EngineModule cur_module;
-
-        cur_module.init = (ModuleProc) dlsym(libaddr, "fractal_init_module");
-        cur_module.cleanup = (ModuleProc) dlsym(libaddr, "fractal_cleanup_module");
+        mod.init = (ModuleProc) mod._dynlib.find_function("fractal_init_module");
+        mod.cleanup = (ModuleProc) mod._dynlib.find_function("fractal_cleanup_module");
         
-        if(cur_module.init && cur_module.cleanup) {
+        if(mod.init && mod.cleanup) {
             std::cout << "Found module at " << file.path().c_str() << '\n';
-            modules.push_back(cur_module);
-        }
+            modules.push_back(mod);
+        } 
     }
 
     return modules;

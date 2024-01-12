@@ -1,6 +1,10 @@
 #ifndef FTUL_FRACTAL_COMMON_H
 #define FTUL_FRACTAL_COMMON_H
 
+#ifdef __unix__
+#define FRACTAL_PLATFORM_UNIX
+#endif
+
 #ifdef __GNUC__
 
 #define FRACTAL_COMPILER_GCC
@@ -18,6 +22,9 @@
 namespace Fractal {
 
     void init_ftul();
+
+    void fractal_abort();
+    void fractal_exit(int code);
 
 }
 
