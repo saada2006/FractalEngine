@@ -1,8 +1,6 @@
 #include <ftul/fractal_common.h>
 
-namespace Fractal {
-
-    FRACTAL_EXPORT void init_module();
-    FRACTAL_EXPORT void cleanup_module();
-
+extern "C" {
+    FRACTAL_EXPORT void fractal_init_module();
+    FRACTAL_EXPORT void fractal_cleanup_module();
 }

@@ -2,14 +2,10 @@
 
 #include <iostream>
 
-namespace Fractal {
+void fractal_init_module() {
+    std::cout << "Renderer intialized!\n";
+}
 
-    void init_module() {
-        std::cout << "Renderer intialized!\n";
-    }
-
-    void cleanup_module() {
-        std::cout << "Renderer cleaned up!\n";
-    }
-
+void fractal_cleanup_module() {
+    std::cout << "Renderer cleaned up!\n";
 }
