@@ -1,10 +1,14 @@
+find_package(SDL2 REQUIRED)
+
 add_subdirectory("backend")
 
 set(ALL_RENDERER_BACKENDS "renderer-opengl")
 
 foreach(RENDERER_BACKEND IN LISTS ALL_RENDERER_BACKENDS)
-    target_include_directories(${RENDERER_BACKEND} PRIVATE "include")
-    target_link_libraries(${RENDERER_BACKEND} PRIVATE "ftul")
+    target_include_directories(${RENDERER_BACKEND} PRIVATE "include" ${SDL2_INCLUDE_DIRS})
+    
+    target_link_libraries(${RENDERER_BACKEND} PRIVATE "ftul" ${SDL2_LIBRARIES})
     target_compile_definitions(${RENDERER_BACKEND} PRIVATE FRACTAL_LOGGING_LOCATION="Renderer")
+    
 endforeach()
 
