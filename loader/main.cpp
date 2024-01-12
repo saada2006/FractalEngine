@@ -1,6 +1,7 @@
 #include <ftul/fractal_common.h>
 
 #include <ftul/dynamic_linking.h>
+#include <ftul/logging.h>
 
 #include <filesystem>
 #include <iostream>
@@ -33,7 +34,7 @@ std::vector<EngineModule> find_all_modules() {
         mod.cleanup = (ModuleProc) mod._dynlib.find_function("fractal_cleanup_module");
         
         if(mod.init && mod.cleanup) {
-            std::cout << "Found module at " << file.path().c_str() << '\n';
+            write_log(("Found module at " + file.path().string()).c_str());
             modules.push_back(mod);
         } 
     }
@@ -44,13 +45,13 @@ std::vector<EngineModule> find_all_modules() {
 int main(int argc, char** argv) {
     auto modules = find_all_modules();
 
-    std::cout << "Loading all modules...\n";
+    write_log("Loading all modules...");
 
     for(const auto& mod : modules) {
         mod.init();
     }
 
-    std::cout << "Cleaning up all modules...\n";
+    write_log("Cleaning up all modules...");
 
     for(const auto& mod : modules) {
         mod.cleanup();

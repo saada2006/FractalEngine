@@ -1,11 +1,15 @@
 #include <renderer/renderer_common.h>
 
+#include <ftul/logging.h>
+
 #include <iostream>
 
+using namespace Fractal;
+
 void fractal_init_module() {
-    std::cout << "Renderer intialized!\n";
+    write_log("Renderer intialized!");
 }
 
 void fractal_cleanup_module() {
-    std::cout << "Renderer cleaned up!\n";
+    write_log("Renderer cleaned up!");
 }

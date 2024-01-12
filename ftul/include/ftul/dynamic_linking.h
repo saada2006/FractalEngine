@@ -1,3 +1,6 @@
+#ifndef FTUL_DYNAMIC_LINKING_H
+#define FTUL_DYNAMIC_LINKING_H
+
 #include "fractal_common.h"
 
 namespace Fractal {
@@ -23,3 +26,5 @@ namespace Fractal {
     };
 
 };
+
+#endif

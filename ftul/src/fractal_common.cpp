@@ -1,5 +1,7 @@
 #include <ftul/fractal_common.h>
 
+#include <ftul/logging.h>
+
 #include <stdlib.h>
 
 #include <iostream>
@@ -7,7 +9,7 @@
 namespace Fractal {
 
     void init_ftul() {
-        std::cout << "FTUL is now intialized!\n";
+        write_log("FTUL is now initialized!");
     }
 
     void fractal_abort() {
