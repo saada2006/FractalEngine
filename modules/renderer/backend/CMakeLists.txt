@@ -7,7 +7,7 @@ set(
 set(
     RENDERER_OPENGL_SRC 
     "opengl/context.cpp"
-    "opengl/module_core.cpp"
+    "opengl/module.cpp"
 )
 
 add_library("renderer-common" STATIC ${RENDERER_COMMON_SRC})

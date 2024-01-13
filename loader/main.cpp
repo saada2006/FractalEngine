@@ -1,72 +1,102 @@
 #include <ftul/fractal_common.h>
-
+ 
 #include <ftul/dynamic_linking.h>
 #include <ftul/logging.h>
+#include <ftul/module.h>
 
 #include <filesystem>
 #include <iostream>
 #include <thread>
 #include <vector>
 
-using namespace Fractal;
+namespace Fractal {
 
-typedef void (*ModuleProc)();
+    typedef Module* (*ModuleAllocProc)();
+    typedef void (*ModuleFreeProc)(Module*);
 
-struct EngineModule {
-    ModuleProc init;
-    ModuleProc cleanup;
-    DynamicLibrary _dynlib;
-};
+    struct ModuleWrapper {
+        Module* _module;
 
-std::vector<EngineModule> find_all_modules() {
-    std::vector<EngineModule> modules;
+        ModuleAllocProc alloc_proc;
+        ModuleFreeProc free_proc;
+        DynamicLibrary _dynlib;
+    };
 
-    auto path = std::filesystem::current_path();
-    // not the best solution, but works for now
-    for (const auto& file : std::filesystem::directory_iterator(path)) {
-        EngineModule mod;
-        mod._dynlib.open(file.path().c_str()); // force load all files, easier than checking for dll files only
+    class Loader {
+    public:
+        void run() {
+            write_log("Searching for modules...");
 
-        if(!mod._dynlib.is_loaded()) {
-            continue;
+            find_all_modules();
+
+            std::vector<std::thread> init_threads;
+            for(auto& mod : _modules) {
+                mod._module = mod.alloc_proc();
+                init_threads.emplace_back(&Loader::exec_init, mod._module);
+            }
+            wait_for_all_threads(init_threads);
+
+            write_log("Cleaning up all modules...");
+
+            std::vector<std::thread> cleanup_threads;
+            for(auto& mod : _modules) {
+                cleanup_threads.emplace_back(&Loader::exec_cleanup, mod._module);
+            }
+            wait_for_all_threads(cleanup_threads);
+
+            free_loader_resources();
+        }
+    private:
+        void find_all_modules() {
+            auto path = std::filesystem::current_path();
+            // not the best solution, but works for now
+            for (const auto& file : std::filesystem::directory_iterator(path)) {
+                ModuleWrapper mdl;
+                mdl._dynlib.open(file.path().c_str()); // force load all files, easier than checking for dll files only
+
+                if(!mdl._dynlib.is_loaded()) {
+                    continue;
+                }
+
+                mdl.alloc_proc = (ModuleAllocProc) mdl._dynlib.find_function("fractal_alloc_module");
+                mdl.free_proc = (ModuleFreeProc) mdl._dynlib.find_function("fractal_free_module");
+                
+                if(mdl.alloc_proc && mdl.free_proc) {
+                    write_log(("Found module at " + file.path().string()).c_str());
+                    _modules.push_back(mdl);
+                } 
+            }
         }
 
-        mod.init = (ModuleProc) mod._dynlib.find_function("fractal_init_module");
-        mod.cleanup = (ModuleProc) mod._dynlib.find_function("fractal_cleanup_module");
-        
-        if(mod.init && mod.cleanup) {
-            write_log(("Found module at " + file.path().string()).c_str());
-            modules.push_back(mod);
-        } 
-    }
+        void free_loader_resources() {
+            for(auto& mdl : _modules) {
+                mdl._dynlib.close();
+            }
+        }
 
-    return modules;
+        static void wait_for_all_threads(std::vector<std::thread>& threads) {
+            for(auto& t : threads) {
+                t.join();
+            }
+        }
+
+        static void exec_init(Module* mdl) {
+            mdl->init();
+        }
+
+        static void exec_cleanup(Module* mdl) {
+            mdl->cleanup();
+        }
+
+        std::vector<ModuleWrapper> _modules;
+    };
+
 }
 
-void wait_for_all_threads(std::vector<std::thread>& threads) {
-    for(auto& t : threads) {
-        t.join();
-    }
-}
 
 int main(int argc, char** argv) {
-    write_log("Searching for modules...");
-
-    auto modules = find_all_modules();
-
-    std::vector<std::thread> init_threads;
-    for(const auto& mod : modules) {
-        init_threads.emplace_back(mod.init);
-    }
-    wait_for_all_threads(init_threads);
-
-    write_log("Cleaning up all modules...");
-
-    std::vector<std::thread> cleanup_threads;
-    for(const auto& mod : modules) {
-        cleanup_threads.emplace_back(mod.cleanup);
-    }
-    wait_for_all_threads(cleanup_threads);
+    Fractal::Loader loader;
+    loader.run();
 
     return 0;
 }
