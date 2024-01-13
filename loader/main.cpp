@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <thread>
 #include <vector>
 
 using namespace Fractal;
@@ -42,20 +43,30 @@ std::vector<EngineModule> find_all_modules() {
     return modules;
 }
 
+void wait_for_all_threads(std::vector<std::thread>& threads) {
+    for(auto& t : threads) {
+        t.join();
+    }
+}
+
 int main(int argc, char** argv) {
+    write_log("Searching for modules...");
+
     auto modules = find_all_modules();
 
-    write_log("Loading all modules...");
-
+    std::vector<std::thread> init_threads;
     for(const auto& mod : modules) {
-        mod.init();
+        init_threads.emplace_back(mod.init);
     }
+    wait_for_all_threads(init_threads);
 
     write_log("Cleaning up all modules...");
 
+    std::vector<std::thread> cleanup_threads;
     for(const auto& mod : modules) {
-        mod.cleanup();
+        cleanup_threads.emplace_back(mod.cleanup);
     }
+    wait_for_all_threads(cleanup_threads);
 
     return 0;
 }
