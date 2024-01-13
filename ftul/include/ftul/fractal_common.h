@@ -20,12 +20,10 @@
 #endif
 
 namespace Fractal {
-
     void init_ftul();
 
     void fractal_abort();
     void fractal_exit(int code);
-
 }
 
 #endif 

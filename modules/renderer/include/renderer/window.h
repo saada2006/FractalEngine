@@ -7,15 +7,9 @@
 
 namespace Fractal {
 
-    enum FractalWindowingMode {
-        FRACTAL_WINDOW_MODE_WINDOWED,
-        FRACTAL_WINDOW_MODE_WINDOWED_FULLSCREEN,
-        FRACTAL_WINDOW_MODE_FULLSCREEN
-    };
-
     class Window {
     public:
-        void open(FractalWindowingMode mode, const char* name, int width = -1, int height = -1);
+        void open(const char *title, int x, int y, int w, int h, uint32_t flags);
         void close();
 
     private:
