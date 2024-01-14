@@ -31,7 +31,7 @@ namespace Fractal {
                     _shutdown_bus->publish(nullptr, nullptr);
                     break;
                 default:
-                    write_log("Unknown SDL event type!" + std::to_string(e.type), FRACTAL_LOG_WARN);
+                    write_log("Unknown SDL event type! " + std::to_string(e.type), FRACTAL_LOG_DEBUG);
                     break;
             }
         }
