@@ -11,6 +11,7 @@ namespace Fractal {
         virtual void destroy() = 0;
         virtual bool alive() = 0;
         virtual void update() = 0;
+        virtual void clear(float r, float g, float b, float a) = 0;
     };
 
     Context* alloc_context();

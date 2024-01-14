@@ -41,4 +41,9 @@ namespace Fractal {
         return _should_close;
     }
 
+    SDL_Window* Window::get_handle() {
+        return _handle;
+    }
+
+
 }

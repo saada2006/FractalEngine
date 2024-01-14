@@ -19,6 +19,8 @@ namespace Fractal {
 
         void poll_events();
         bool should_close();
+
+        SDL_Window* get_handle();
     private:
         SDL_Window* _handle;
         int _width, _height;
