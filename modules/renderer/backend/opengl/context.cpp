@@ -5,6 +5,8 @@
 
 #include <ftul/logging.h>
 
+#include <sstream>
+
 namespace Fractal {
 
     class GLContext : public Context {
@@ -28,7 +30,16 @@ namespace Fractal {
             if(glewInit() != GLEW_OK) {
                 write_log("Failed to initialize GLEW!", FRACTAL_LOG_ABORT);
             } else {
-                write_log("OpenGL context successfuly created!");
+
+                std::stringstream builder;
+
+                builder << "OpenGL context successfuly created with the following properties:\n"
+                        << "\tGPU Vendor:\t" << glGetString(GL_VENDOR) << "\n"
+                        << "\tGPU Renderer:\t" << glGetString(GL_RENDERER) << "\n"
+                        << "\tOpenGL Version:\t" << glGetString(GL_VERSION) << "\n"
+                        << "\tGLSL Version:\t" << glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+                write_log(builder.str());
             }
 
         }

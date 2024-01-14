@@ -28,7 +28,7 @@ namespace Fractal {
             switch(e.type) {
                 case SDL_QUIT:
                     _should_close = true;
-                    _shutdown_bus->publish(nullptr, nullptr);
+                    _shutdown_bus->publish(nullptr);
                     break;
                 default:
                     write_log("Unknown SDL event type! " + std::to_string(e.type), FRACTAL_LOG_DEBUG);

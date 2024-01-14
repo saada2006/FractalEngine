@@ -27,7 +27,7 @@ namespace Fractal {
 
         bool _should_close;
 
-        EventBus* _shutdown_bus;
+        Reference<EventBus> _shutdown_bus;
     };
 
 }

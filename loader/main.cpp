@@ -29,7 +29,7 @@ namespace Fractal {
             _notif->lock();
         }
 
-        void handle_event(Event* e) override {
+        void handle_event(Reference<Event> e) override {
             _notif->unlock();
         }
     private:
@@ -43,8 +43,8 @@ namespace Fractal {
 
             std::mutex shutdown_blocker;
 
-            _shared_resources._event_bus_map.add("core/shutdown", new EventBus);
-            _shared_resources._event_bus_map.subscribe("core/shutdown", new LoaderShutdownNotifier(&shutdown_blocker));
+            _shared_resources._event_bus_map.add("core/shutdown", std::make_shared<EventBus>());
+            _shared_resources._event_bus_map.subscribe("core/shutdown", std::make_shared<LoaderShutdownNotifier>(&shutdown_blocker));
 
             write_log("Searching for modules...");
 
