@@ -1,11 +1,13 @@
 #ifndef FTUL_MODULE_H
 #define FTUL_MODULE_H
 
+#include "engine_core.h"
+
 namespace Fractal {
 
     class Module {
     public:
-        virtual void init() = 0;
+        virtual void init(EngineSharedResources* shared_resources) = 0;
         virtual void cleanup() = 0;
     };
 

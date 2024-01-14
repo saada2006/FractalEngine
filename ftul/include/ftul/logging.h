@@ -5,6 +5,8 @@
 #define FRACTAL_LOGGING_LOCATION "Unknown"
 #endif
 
+#include <string>
+
 namespace Fractal {
 
     enum FractalLogSeverity {
@@ -16,6 +18,7 @@ namespace Fractal {
     };
 
     void write_log(const char* message, FractalLogSeverity severity = FRACTAL_LOG_INFO, const char* location = FRACTAL_LOGGING_LOCATION);
+    void write_log(const std::string& message, FractalLogSeverity severity = FRACTAL_LOG_INFO, const char* location = FRACTAL_LOGGING_LOCATION);
 
 }
 

@@ -1,7 +1,9 @@
 #ifndef FTUL_FRACTAL_COMMON_H
 #define FTUL_FRACTAL_COMMON_H
 
-#ifdef __unix__
+#if defined(_WIN32) 
+#define FRACTAL_PLATFORM_WINDOWS  
+#elif defined(__unix__)
 #define FRACTAL_PLATFORM_UNIX
 #endif
 
@@ -16,7 +18,7 @@
 #define FRACTAL_DLFUNC FRACTAL_EXPORT
 
 #else
-#error Fractal only supported on Linux via GCC at the moment.
+#error Fractal only supported on GCC-based compilers at the moment.
 #endif
 
 namespace Fractal {

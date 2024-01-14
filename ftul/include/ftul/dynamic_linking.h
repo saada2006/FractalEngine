@@ -3,6 +3,12 @@
 
 #include "fractal_common.h"
 
+#if defined(FRACTAL_PLATFORM_UNIX)
+#include <dlfcn.h>
+#elif defined(FRACTAL_PLATFORM_WINDOWS)
+#include <libloaderapi.h>
+#endif
+
 namespace Fractal {
 
     class DynamicLibrary {
@@ -20,8 +26,8 @@ namespace Fractal {
 
         #ifdef FRACTAL_PLATFORM_UNIX
         void* _handle;
-        #else 
-        #error Dynamic linking is not yet implemented for the current platform!
+        #elif defined(FRACTAL_PLATFORM_WINDOWS)
+        HMODULE _handle; 
         #endif
     };
 

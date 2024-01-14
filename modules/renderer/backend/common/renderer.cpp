@@ -2,14 +2,20 @@
 
 namespace Fractal {
 
-    void Renderer::init() {
+    void Renderer::init(EngineSharedResources* shared_resources) {
         _ctx = alloc_context();
-        _ctx->create();
+        _ctx->create(shared_resources);
     }
 
     void Renderer::quit() {
         _ctx->destroy();
         free_context(_ctx);
+    }
+
+    void Renderer::run_main_loop() {
+        while(_ctx->alive()) {
+            _ctx->update();
+        }
     }
 
 }

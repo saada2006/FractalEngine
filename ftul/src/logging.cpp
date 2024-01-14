@@ -2,10 +2,11 @@
 
 #include <ftul/fractal_common.h>
 
+#include <stdio.h>
 #include <time.h>
 
-#include <iostream>
 #include <sstream>
+#include <string>
 
 namespace Fractal {
 
@@ -60,11 +61,16 @@ namespace Fractal {
                      "] [" << get_readable_location(location) << "] " 
                            << message << '\n';
 
-        std::cout << str_builder.str();
+        printf("%s", str_builder.str().c_str());
 
         if(severity == FRACTAL_LOG_ABORT) {
             fractal_abort();
         }
     }
     
+    void write_log(const std::string& message, FractalLogSeverity severity, const char* location) {
+        write_log(message.c_str(), severity, location);
+    }
+
+
 }

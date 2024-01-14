@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -22,9 +23,29 @@ namespace Fractal {
         DynamicLibrary _dynlib;
     };
 
+    class LoaderShutdownNotifier : public EventSubscriber {
+    public:
+        LoaderShutdownNotifier(std::mutex* mtx) : _notif(mtx) {
+            _notif->lock();
+        }
+
+        void handle_event(Event* e) override {
+            _notif->unlock();
+        }
+    private:
+        std::mutex* _notif;
+    };
+
     class Loader {
     public:
         void run() {
+            init_ftul();
+
+            std::mutex shutdown_blocker;
+
+            _shared_resources._event_bus_map.add("core/shutdown", new EventBus);
+            _shared_resources._event_bus_map.subscribe("core/shutdown", new LoaderShutdownNotifier(&shutdown_blocker));
+
             write_log("Searching for modules...");
 
             find_all_modules();
@@ -32,15 +53,19 @@ namespace Fractal {
             std::vector<std::thread> init_threads;
             for(auto& mod : _modules) {
                 mod._module = mod.alloc_proc();
-                init_threads.emplace_back(&Loader::exec_init, mod._module);
+                init_threads.emplace_back(&Loader::exec_init, this, mod._module);
             }
+
+            shutdown_blocker.lock();
+            shutdown_blocker.unlock();
+
             wait_for_all_threads(init_threads);
 
             write_log("Cleaning up all modules...");
 
             std::vector<std::thread> cleanup_threads;
             for(auto& mod : _modules) {
-                cleanup_threads.emplace_back(&Loader::exec_cleanup, mod._module);
+                cleanup_threads.emplace_back(&Loader::exec_cleanup, this, mod._module);
             }
             wait_for_all_threads(cleanup_threads);
 
@@ -52,7 +77,8 @@ namespace Fractal {
             // not the best solution, but works for now
             for (const auto& file : std::filesystem::directory_iterator(path)) {
                 ModuleWrapper mdl;
-                mdl._dynlib.open(file.path().c_str()); // force load all files, easier than checking for dll files only
+
+                mdl._dynlib.open(file.path().generic_string().c_str()); // force load all files, easier than checking for dll files only
 
                 if(!mdl._dynlib.is_loaded()) {
                     continue;
@@ -80,23 +106,22 @@ namespace Fractal {
             }
         }
 
-        static void exec_init(Module* mdl) {
-            mdl->init();
+        void exec_init(Module* mdl) {
+            mdl->init(&_shared_resources);
         }
 
-        static void exec_cleanup(Module* mdl) {
+        void exec_cleanup(Module* mdl) {
             mdl->cleanup();
         }
 
         std::vector<ModuleWrapper> _modules;
+        EngineSharedResources _shared_resources;
     };
 
 }
 
-
 int main(int argc, char** argv) {
     Fractal::Loader loader;
     loader.run();
-
     return 0;
 }

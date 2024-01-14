@@ -1,9 +1,5 @@
 #include <ftul/dynamic_linking.h>
 
-#ifdef FRACTAL_PLATFORM_UNIX
-#include <dlfcn.h>
-#endif
-
 #include <stdlib.h>
 
 namespace Fractal {
@@ -11,6 +7,8 @@ namespace Fractal {
     DynamicLibrary::DynamicLibrary() : _loaded(false) {
         #ifdef FRACTAL_PLATFORM_UNIX
         _handle = nullptr;
+        #elif defined(FRACTAL_PLATFORM_WINDOWS)
+        _handle = nullptr; 
         #endif
     }
 
@@ -26,10 +24,13 @@ namespace Fractal {
 
         #ifdef FRACTAL_PLATFORM_UNIX
         _handle = dlopen(path, RTLD_LAZY);
+        #elif defined(FRACTAL_PLATFORM_WINDOWS)
+        _handle = LoadLibraryA(path); 
+        #endif
+
         if(_handle) {
             _loaded = true;
         }
-        #endif
     }
 
     void DynamicLibrary::close() {
@@ -39,6 +40,8 @@ namespace Fractal {
 
         #ifdef FRACTAL_PLATFORM_UNIX
         dlclose(_handle);
+        #elif defined(FRACTAL_PLATFORM_WINDOWS)
+        FreeLibrary(_handle); 
         #endif
 
         _loaded = false;
@@ -51,6 +54,8 @@ namespace Fractal {
     void* DynamicLibrary::find_function(const char* name) {
         #ifdef FRACTAL_PLATFORM_UNIX
         return dlsym(_handle, name);
+        #elif defined(FRACTAL_PLATFORM_WINDOWS)
+        return (void*)GetProcAddress(_handle, name);
         #endif
     }
 
