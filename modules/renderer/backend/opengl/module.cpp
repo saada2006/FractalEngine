@@ -8,7 +8,7 @@
 
 namespace Fractal {
 
-    class RendererModule : public Module {
+    class RendererModule : public IModule {
     public:
         void init(Reference<EngineSharedResources> esr) override {
             _renderer = new Renderer;
@@ -40,7 +40,7 @@ namespace Fractal {
 
 
     extern "C" {
-        FRACTAL_EXPORT Reference<Module> fractal_alloc_module() {
+        FRACTAL_EXPORT Reference<IModule> fractal_alloc_module() {
             return std::make_shared<RendererModule>();
         }
     }

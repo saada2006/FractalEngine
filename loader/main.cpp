@@ -12,14 +12,14 @@
 
 namespace Fractal {
 
-    typedef Reference<Module> (*ModuleAllocProc)();
+    typedef Reference<IModule> (*ModuleAllocProc)();
 
     struct ModuleWrapper {
-        Reference<Module> _module;
+        Reference<IModule> _module;
         DynamicLibrary _dynlib;
     };
 
-    class LoaderShutdownNotifier : public EventSubscriber {
+    class LoaderShutdownNotifier : public IEventSubscriber {
     public:
         LoaderShutdownNotifier(std::mutex* mtx) : _notif(mtx) {
             _notif->lock();
@@ -27,7 +27,7 @@ namespace Fractal {
 
         ~LoaderShutdownNotifier() override {}
 
-        void handle_event(Reference<Event> e) override {
+        void handle_event(Reference<IEvent> e) override {
             _notif->unlock();
         }
     private:
@@ -45,31 +45,18 @@ namespace Fractal {
 
             _esr->_common_buses.core.shutdown->subscribe(std::make_shared<LoaderShutdownNotifier>(&shutdown_blocker));
 
-            write_log("Searching for modules...");
+            init_modules();
 
-            find_all_modules();
-
-            std::vector<std::thread> init_threads;
-            for(auto& mod : _modules) {
-                init_threads.emplace_back(&Loader::exec_init, this, mod._module);
-            }
-
+            // not the nicest solution but it works
             shutdown_blocker.lock();
             shutdown_blocker.unlock();
 
-            wait_for_all_threads(init_threads);
-
-            write_log("Cleaning up all modules...");
-            std::vector<std::thread> cleanup_threads;
-            for(auto& mod : _modules) {
-                cleanup_threads.emplace_back(&Loader::exec_cleanup, this, mod._module);
-            }
-            wait_for_all_threads(cleanup_threads);
-
-            free_loader_resources();
+            cleanup_modules();
         }
     private:
         void find_all_modules() {
+            write_log("Searching for modules...");
+
             auto path = std::filesystem::current_path();
             // not the best solution, but works for now
             for (const auto& file : std::filesystem::directory_iterator(path)) {
@@ -92,6 +79,27 @@ namespace Fractal {
             }
         }
 
+        void init_modules() {
+            find_all_modules();
+
+            std::vector<std::thread> init_threads;
+            for(auto& mod : _modules) {
+                init_threads.emplace_back(&Loader::exec_init, this, mod._module);
+            }
+            wait_for_all_threads(init_threads);
+        }
+
+        void cleanup_modules() {
+            write_log("Cleaning up all modules...");
+            std::vector<std::thread> cleanup_threads;
+            for(auto& mod : _modules) {
+                cleanup_threads.emplace_back(&Loader::exec_cleanup, this, mod._module);
+            }
+            wait_for_all_threads(cleanup_threads);
+
+            free_loader_resources();
+        }
+
         void free_loader_resources() {
             for(auto& mdl : _modules) {
                 mdl._dynlib.close();
@@ -104,11 +112,11 @@ namespace Fractal {
             }
         }
 
-        void exec_init(Reference<Module> mdl) {
+        void exec_init(Reference<IModule> mdl) {
             mdl->init(_esr);
         }
 
-        void exec_cleanup(Reference<Module> mdl) {
+        void exec_cleanup(Reference<IModule> mdl) {
             mdl->cleanup();
         }
 

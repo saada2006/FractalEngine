@@ -3,18 +3,19 @@
 namespace Fractal {
 
     void Renderer::init(Reference<EngineSharedResources> esr) {
-        _ctx = create_context(esr);
+        _window = create_window(esr);
+        _window->open("Fractal Process", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720); // eventually I need to abstract SDL out of here
     }
 
     void Renderer::quit() {
-        _ctx->destroy();
+        _window->close();
     }
 
     void Renderer::run_main_loop() {
-        while(_ctx->alive()) {
-            _ctx->clear(0.0, 0.0, 0.0, 1.0);
+        while(!_window->should_close()) {
+            _window->clear(0.0, 1.0, 0.0, 1.0);
 
-            _ctx->update();
+            _window->update();
         }
     }
 

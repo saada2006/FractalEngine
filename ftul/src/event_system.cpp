@@ -3,15 +3,15 @@
 
 namespace Fractal {
 
-    EventSubscriber::~EventSubscriber() {}
+    IEventSubscriber::~IEventSubscriber() {}
 
-    void EventBus::publish(Reference<Event> e) {
+    void EventBus::publish(Reference<IEvent> e) {
         for(auto& sub : _subscribers) {
             sub->handle_event(e);
         }
     }
 
-    void EventBus::subscribe(Reference<EventSubscriber> sub) {
+    void EventBus::subscribe(Reference<IEventSubscriber> sub) {
         _subscribers.push_back(sub);
     }
 
@@ -27,11 +27,11 @@ namespace Fractal {
         return get_mapping(s);
     }
 
-    void EventBusMap::subscribe(const std::string& s, Reference<EventSubscriber> sub) {
+    void EventBusMap::subscribe(const std::string& s, Reference<IEventSubscriber> sub) {
         get_mapping(s)->subscribe(sub);
     }
 
-    void EventBusMap::publish(const std::string& s, Reference<Event> e) {
+    void EventBusMap::publish(const std::string& s, Reference<IEvent> e) {
         get_mapping(s)->publish(e);
     }
     

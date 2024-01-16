@@ -1,13 +1,13 @@
 set(
     RENDERER_COMMON_SRC 
     "common/renderer.cpp"
-    "common/window.cpp"
+    "common/window_base.cpp"
 )
 
 set(
     RENDERER_OPENGL_SRC 
-    "opengl/context.cpp"
     "opengl/module.cpp"
+    "opengl/window.cpp"
 )
 
 add_library("renderer-common" STATIC ${RENDERER_COMMON_SRC})

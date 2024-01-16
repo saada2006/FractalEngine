@@ -1,7 +1,7 @@
 #ifndef FRACTAL_RENDERER_GLRENDERER_H
 #define FRACTAL_RENDERER_GLRENDERER_H
 
-#include <renderer/context.h>
+#include <renderer/window_base.h>
 
 #include <ftul/engine_core.h>
 #include <ftul/reference.h>
@@ -15,7 +15,7 @@ namespace Fractal {
 
         void run_main_loop();
     private: 
-        Reference<Context> _ctx;
+        Reference<IWindow> _window;
     };
 
 };

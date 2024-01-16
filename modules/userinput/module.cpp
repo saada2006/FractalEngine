@@ -6,13 +6,13 @@
 
 namespace Fractal {
 
-    class EventDemux : public EventSubscriber {
+    class EventDemux : public IEventSubscriber {
     public:
         EventDemux(Reference<EngineSharedResources> esr) : _shutdown_bus(esr->_common_buses.core.shutdown) {}
 
         ~EventDemux() override {}
 
-        void handle_event(Reference<Event> ignored) override {
+        void handle_event(Reference<IEvent> ignored) override {
             SDL_Event e;
             while(SDL_PollEvent(&e)) {
                 switch(e.type) {
@@ -30,7 +30,7 @@ namespace Fractal {
         Reference<EventBus> _shutdown_bus;
     };
 
-    class UserInputModule : public Module {
+    class UserInputModule : public IModule {
     public:
         void init(Reference<EngineSharedResources> esr) override {
             _event_demux = std::make_shared<EventDemux>(esr);
@@ -43,7 +43,7 @@ namespace Fractal {
     };
 
     extern "C" {
-        FRACTAL_EXPORT Reference<Module> fractal_alloc_module() {
+        FRACTAL_EXPORT Reference<IModule> fractal_alloc_module() {
             return std::make_shared<UserInputModule>();
         }
     }

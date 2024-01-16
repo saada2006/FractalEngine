@@ -5,7 +5,7 @@
 
 namespace Fractal {
 
-    class Module {
+    class IModule {
     public:
         virtual void init(Reference<EngineSharedResources> esr) = 0;
         virtual void cleanup() = 0;

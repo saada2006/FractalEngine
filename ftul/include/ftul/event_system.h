@@ -14,25 +14,25 @@ namespace Fractal {
 
     // raw event - only contains metadata
     // we'll make the event system more efficient later
-    struct Event {
-        virtual ~Event() = delete;
+    struct IEvent {
+        virtual ~IEvent() = delete;
 
         Reference<EventBus> _bus;
     };
 
-    class EventSubscriber {
+    class IEventSubscriber {
     public:
-        virtual ~EventSubscriber();
+        virtual ~IEventSubscriber();
 
-        virtual void handle_event(Reference<Event> e) = 0;
+        virtual void handle_event(Reference<IEvent> e) = 0;
     };
 
     class EventBus {
     public:
-        void publish(Reference<Event> e);
-        void subscribe(Reference<EventSubscriber> sub);
+        void publish(Reference<IEvent> e);
+        void subscribe(Reference<IEventSubscriber> sub);
     private:
-        std::vector<Reference<EventSubscriber>> _subscribers; // I should probably use a smart pointer for this
+        std::vector<Reference<IEventSubscriber>> _subscribers; // I should probably use a smart pointer for this
     };
 
     class EventBusMap {
@@ -40,8 +40,8 @@ namespace Fractal {
         void add(const std::string& s, Reference<EventBus> bus);
         Reference<EventBus> get(const std::string& s);
 
-        void subscribe(const std::string& s, Reference<EventSubscriber> sub);
-        void publish(const std::string& s, Reference<Event> e);
+        void subscribe(const std::string& s, Reference<IEventSubscriber> sub);
+        void publish(const std::string& s, Reference<IEvent> e);
     private:
         bool check_preexisting(const std::string& s);
         Reference<EventBus> get_mapping(const std::string& s);
