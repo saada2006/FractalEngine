@@ -1,11 +1,9 @@
 #ifndef FRACTAL_RENDERER_WINDOW_H
 #define FRACTAL_RENDERER_WINDOW_H
 
-#include <ftul/engine_core.h>
-#include <ftul/event_system.h>
-#include <ftul/fractal_common.h>
-
 #include <SDL2/SDL.h>
+
+#include <fsl/common.h>
 
 namespace Fractal {
 

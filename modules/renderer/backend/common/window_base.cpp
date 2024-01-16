@@ -1,7 +1,5 @@
 #include <renderer/window_base.h>
 
-#include <ftul/logging.h>
-
 namespace Fractal {
 
     IWindow::IWindow(Reference<EngineSharedResources> esr) : _should_close(true) {

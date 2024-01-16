@@ -1,8 +1,6 @@
-#include <ftul/fractal_common.h>
-#include <ftul/logging.h>
-#include <ftul/module.h>
-
 #include <SDL2/SDL.h>
+
+#include <fsl/common.h>
 
 namespace Fractal {
 

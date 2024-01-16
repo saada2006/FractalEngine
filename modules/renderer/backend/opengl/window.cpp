@@ -3,10 +3,6 @@
 
 #include <GL/glew.h>
 
-#include <ftul/logging.h>
-
-#include <sstream>
-
 namespace Fractal {
 
     class GLWindow : public IWindow {

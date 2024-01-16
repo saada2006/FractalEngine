@@ -3,8 +3,7 @@
 
 #include <renderer/window_base.h>
 
-#include <ftul/engine_core.h>
-#include <ftul/reference.h>
+#include <fsl/common.h>
 
 namespace Fractal {
 

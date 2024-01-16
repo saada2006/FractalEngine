@@ -1,14 +1,4 @@
-#include <ftul/fractal_common.h>
- 
-#include <ftul/dynamic_linking.h>
-#include <ftul/logging.h>
-#include <ftul/module.h>
-
-#include <filesystem>
-#include <iostream>
-#include <mutex>
-#include <thread>
-#include <vector>
+#include <fsl/common.h>
 
 namespace Fractal {
 
@@ -37,7 +27,7 @@ namespace Fractal {
     class Loader {
     public:
         void run() {
-            init_ftul();
+            init_fsl();
 
             std::mutex shutdown_blocker;
 

@@ -1,8 +1,7 @@
 #ifndef FRACTAL_RENDERER_CONTEXT_H
 #define FRACTAL_RENDERER_CONTEXT_H
 
-#include <ftul/engine_core.h>
-#include <ftul/reference.h>
+#include <fsl/common.h>
 
 namespace Fractal {
 

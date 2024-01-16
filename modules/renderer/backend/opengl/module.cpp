@@ -1,11 +1,5 @@
 #include <renderer/renderer.h>
 
-#include <ftul/fractal_common.h>
-#include <ftul/logging.h>
-#include <ftul/module.h>
-
-#include <thread>
-
 namespace Fractal {
 
     class RendererModule : public IModule {
