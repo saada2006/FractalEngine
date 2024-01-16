@@ -1,5 +1,3 @@
-find_package(SDL2 REQUIRED)
-
 add_subdirectory("backend")
 
 set(ALL_RENDERER_BACKENDS "renderer-opengl")

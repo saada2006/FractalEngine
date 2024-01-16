@@ -15,13 +15,15 @@ namespace Fractal {
     // raw event - only contains metadata
     // we'll make the event system more efficient later
     struct Event {
-        virtual ~Event() = 0;
+        virtual ~Event() = delete;
 
         Reference<EventBus> _bus;
     };
 
     class EventSubscriber {
     public:
+        virtual ~EventSubscriber();
+
         virtual void handle_event(Reference<Event> e) = 0;
     };
 

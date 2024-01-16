@@ -11,7 +11,9 @@ namespace Fractal {
 
     class GLContext : public Context {
     public:
-        void create(EngineSharedResources* shared_resources) override {
+        GLContext(Reference<EngineSharedResources> esr) {
+            _swap_chain_update = esr->_common_buses.core.swap_chain_update;
+
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
             SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
             SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -23,7 +25,7 @@ namespace Fractal {
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
             _window.open("Fractal Process", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
-            _window.fetch_event_buses(&shared_resources->_event_bus_map);
+            _window.fetch_event_buses(esr);
 
             _native_context = SDL_GL_CreateContext(_window.get_handle());
             
@@ -44,7 +46,8 @@ namespace Fractal {
 
         }
 
-        void destroy() override {
+        virtual void destroy() override {
+            SDL_GL_DeleteContext(_native_context);
             _window.close();
         }
 
@@ -54,7 +57,8 @@ namespace Fractal {
 
         void update() override {
             SDL_GL_SwapWindow(_window.get_handle());
-            _window.poll_events();
+            // send swap chain update
+            _swap_chain_update->publish(nullptr);
         }
 
         void clear(float r, float g, float b, float a) override {
@@ -64,14 +68,12 @@ namespace Fractal {
     private:
         Window _window;
         SDL_GLContext _native_context;
+
+        Reference<EventBus> _swap_chain_update;
     };
 
-    Context* alloc_context() {
-        return new GLContext;
-    }
-
-    void free_context(Context* ctx) {
-        delete ctx;
+    Reference<Context> create_context(Reference<EngineSharedResources> esr) {
+        return std::make_shared<GLContext>(esr);
     }
 
 }

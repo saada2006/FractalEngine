@@ -12,14 +12,10 @@
 
 namespace Fractal {
 
-    typedef Module* (*ModuleAllocProc)();
-    typedef void (*ModuleFreeProc)(Module*);
+    typedef Reference<Module> (*ModuleAllocProc)();
 
     struct ModuleWrapper {
-        Module* _module;
-
-        ModuleAllocProc alloc_proc;
-        ModuleFreeProc free_proc;
+        Reference<Module> _module;
         DynamicLibrary _dynlib;
     };
 
@@ -28,6 +24,8 @@ namespace Fractal {
         LoaderShutdownNotifier(std::mutex* mtx) : _notif(mtx) {
             _notif->lock();
         }
+
+        ~LoaderShutdownNotifier() override {}
 
         void handle_event(Reference<Event> e) override {
             _notif->unlock();
@@ -43,8 +41,9 @@ namespace Fractal {
 
             std::mutex shutdown_blocker;
 
-            _shared_resources._event_bus_map.add("core/shutdown", std::make_shared<EventBus>());
-            _shared_resources._event_bus_map.subscribe("core/shutdown", std::make_shared<LoaderShutdownNotifier>(&shutdown_blocker));
+            _esr = std::make_shared<EngineSharedResources>();
+
+            _esr->_common_buses.core.shutdown->subscribe(std::make_shared<LoaderShutdownNotifier>(&shutdown_blocker));
 
             write_log("Searching for modules...");
 
@@ -52,7 +51,6 @@ namespace Fractal {
 
             std::vector<std::thread> init_threads;
             for(auto& mod : _modules) {
-                mod._module = mod.alloc_proc();
                 init_threads.emplace_back(&Loader::exec_init, this, mod._module);
             }
 
@@ -62,7 +60,6 @@ namespace Fractal {
             wait_for_all_threads(init_threads);
 
             write_log("Cleaning up all modules...");
-
             std::vector<std::thread> cleanup_threads;
             for(auto& mod : _modules) {
                 cleanup_threads.emplace_back(&Loader::exec_cleanup, this, mod._module);
@@ -84,11 +81,12 @@ namespace Fractal {
                     continue;
                 }
 
-                mdl.alloc_proc = (ModuleAllocProc) mdl._dynlib.find_function("fractal_alloc_module");
-                mdl.free_proc = (ModuleFreeProc) mdl._dynlib.find_function("fractal_free_module");
+                ModuleAllocProc mod_alloc = (ModuleAllocProc) mdl._dynlib.find_function("fractal_alloc_module");
                 
-                if(mdl.alloc_proc && mdl.free_proc) {
+                if(mod_alloc) {
                     write_log(("Found module at " + file.path().string()).c_str());
+
+                    mdl._module = mod_alloc();
                     _modules.push_back(mdl);
                 } 
             }
@@ -106,16 +104,16 @@ namespace Fractal {
             }
         }
 
-        void exec_init(Module* mdl) {
-            mdl->init(&_shared_resources);
+        void exec_init(Reference<Module> mdl) {
+            mdl->init(_esr);
         }
 
-        void exec_cleanup(Module* mdl) {
+        void exec_cleanup(Reference<Module> mdl) {
             mdl->cleanup();
         }
 
         std::vector<ModuleWrapper> _modules;
-        EngineSharedResources _shared_resources;
+        Reference<EngineSharedResources> _esr;
     };
 
 }

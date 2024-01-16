@@ -54,6 +54,10 @@ namespace Fractal {
     }
 
     void write_log(const char* message, FractalLogSeverity severity, const char* location) {
+        if(severity == FRACTAL_LOG_DEBUG) {
+            return;
+        }
+
         std::stringstream str_builder;
 
         str_builder << "[" << get_time_formatted() << 

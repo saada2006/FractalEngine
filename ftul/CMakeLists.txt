@@ -1,6 +1,7 @@
 set(
     FTUL_SRC 
     "src/dynamic_linking.cpp"
+    "src/engine_core.cpp"
     "src/event_system.cpp"
     "src/fractal_common.cpp"
     "src/logging.cpp"

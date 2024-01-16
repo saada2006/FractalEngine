@@ -4,10 +4,13 @@
 
 namespace Fractal {
 
-    Window::Window() : _should_close(true) {}
+    Window::Window() : _should_close(true) {
+        _window_event_handler = std::make_shared<WindowEventHandler>(&_should_close);
+    }
 
-    void Window::fetch_event_buses(EventBusMap* ebm) {
-        _shutdown_bus = ebm->get("core/shutdown");
+    void Window::fetch_event_buses(Reference<EngineSharedResources> esr) {
+        _shutdown_bus = esr->_common_buses.core.shutdown;
+        _shutdown_bus->subscribe(_window_event_handler);
     }
 
 
@@ -22,27 +25,19 @@ namespace Fractal {
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
     }
 
-    void Window::poll_events() {
-        SDL_Event e;
-        while(SDL_PollEvent(&e)) {
-            switch(e.type) {
-                case SDL_QUIT:
-                    _should_close = true;
-                    _shutdown_bus->publish(nullptr);
-                    break;
-                default:
-                    write_log("Unknown SDL event type! " + std::to_string(e.type), FRACTAL_LOG_DEBUG);
-                    break;
-            }
-        }
-    }
-
     bool Window::should_close() {
         return _should_close;
     }
 
     SDL_Window* Window::get_handle() {
         return _handle;
+    }
+
+    Window::WindowEventHandler::WindowEventHandler(bool* loc) : _write_location(loc) {}
+    Window::WindowEventHandler::~WindowEventHandler() {}
+
+    void Window::WindowEventHandler::handle_event(Reference<Event> ignored) {
+        *_write_location = true;
     }
 
 

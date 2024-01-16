@@ -8,12 +8,12 @@
 
 namespace Fractal {
 
-    class RendererModule : Module {
+    class RendererModule : public Module {
     public:
-        void init(EngineSharedResources* shared_resources) override {
+        void init(Reference<EngineSharedResources> esr) override {
             _renderer = new Renderer;
 
-            _renderer_thread = std::thread(&RendererModule::renderer_thread_exec, this, shared_resources);
+            _renderer_thread = std::thread(&RendererModule::renderer_thread_exec, this, esr);
         }
 
         void cleanup() override {
@@ -23,8 +23,8 @@ namespace Fractal {
             write_log("Renderer module cleaned up!");
         }
 
-        void renderer_thread_exec(EngineSharedResources* shared_resources) {
-            _renderer->init(shared_resources);
+        void renderer_thread_exec(Reference<EngineSharedResources> esr) {
+            _renderer->init(esr);
             write_log("Renderer intialized!");
             
             _renderer->run_main_loop();
@@ -40,12 +40,8 @@ namespace Fractal {
 
 
     extern "C" {
-        FRACTAL_EXPORT Module* fractal_alloc_module() {
-            return (Module*) new RendererModule;
-        }
-
-        FRACTAL_EXPORT void fractal_free_module(Module* mdl) {
-            delete mdl;
+        FRACTAL_EXPORT Reference<Module> fractal_alloc_module() {
+            return std::make_shared<RendererModule>();
         }
     }
 

@@ -4,17 +4,18 @@
 #include <renderer/context.h>
 
 #include <ftul/engine_core.h>
+#include <ftul/reference.h>
 
 namespace Fractal {
 
-    class Renderer {
+    class Renderer { 
     public:
-        void init(EngineSharedResources* shared_resources);
+        void init(Reference<EngineSharedResources> esr);
         void quit();
 
         void run_main_loop();
     private: 
-        Context* _ctx;
+        Reference<Context> _ctx;
     };
 
 };

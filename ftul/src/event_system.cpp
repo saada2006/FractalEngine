@@ -3,6 +3,8 @@
 
 namespace Fractal {
 
+    EventSubscriber::~EventSubscriber() {}
+
     void EventBus::publish(Reference<Event> e) {
         for(auto& sub : _subscribers) {
             sub->handle_event(e);
