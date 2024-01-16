@@ -13,14 +13,14 @@ namespace Fractal {
 
     }
 
-    void IWindow::open(const char *title, int x, int y, int w, int h) {
+    void IWindow::open(const char *title, int w, int h) {
         SDL_Init(SDL_INIT_VIDEO);
 
         uint32_t flags = SDL_WINDOW_SHOWN;
 
         flags |= get_context_creation_flags();
 
-        _window_handle = SDL_CreateWindow(title, x, y, w, h, flags);
+        _window_handle = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, flags);
         _should_close = false;
 
         create_context();

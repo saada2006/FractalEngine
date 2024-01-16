@@ -13,7 +13,7 @@ namespace Fractal {
     public:
         IWindow(Reference<EngineSharedResources> esr);
 
-        void open(const char *title, int x, int y, int w, int h);
+        void open(const char *title, int w, int h);
         void close();
 
         bool should_close();
