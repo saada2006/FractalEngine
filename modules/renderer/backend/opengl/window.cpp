@@ -14,6 +14,8 @@ namespace Fractal {
             glClearBufferfv(GL_COLOR, 0, color);
         }
     protected:
+        SDL_GLContext _context_handle;
+
         uint32_t get_context_creation_flags() override {
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
             SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -54,8 +56,6 @@ namespace Fractal {
         void present() override {
             SDL_GL_SwapWindow(_window_handle);
         }
-
-        SDL_GLContext _context_handle;
     };
 
     Reference<IWindow> create_window(Reference<EngineSharedResources> esr) {

@@ -1,17 +1,17 @@
 set(
-    RENDERER_COMMON_SRC 
-    "common/renderer.cpp"
-    "common/window_base.cpp"
+    RENDERER_FRAMEWORK_SRC 
+    "framework/module.cpp"
+    "framework/renderer.cpp"
+    "framework/window_base.cpp"
 )
 
 set(
     RENDERER_OPENGL_SRC 
-    "opengl/module.cpp"
     "opengl/window.cpp"
 )
 
-add_library("renderer-common" STATIC ${RENDERER_COMMON_SRC})
-add_library("renderer-opengl" SHARED ${RENDERER_OPENGL_SRC})
+add_library("renderer-framework" SHARED ${RENDERER_FRAMEWORK_SRC})
+add_library("renderer-opengl" STATIC ${RENDERER_OPENGL_SRC})
 
 find_package(GLEW REQUIRED)
 

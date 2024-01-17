@@ -52,14 +52,19 @@ namespace Fractal {
             return;
         }
 
-        std::stringstream str_builder;
+        const int MAX_MSG_LEN = 4096; 
+        char msg_buf[MAX_MSG_LEN];
 
-        str_builder << "[" << get_time_formatted() << 
-                     "] [" << get_severity_str(severity) << 
-                     "] [" << get_readable_location(location) << "] " 
-                           << message << '\n';
+        // I eventually need to reduce allocations here as well
+        std::snprintf(msg_buf, MAX_MSG_LEN, 
+            "[%s] [%s] [%s] %s\n", 
+            get_time_formatted().c_str(), 
+            get_severity_str(severity).c_str(), 
+            get_readable_location(location).c_str(), 
+            message
+        );
 
-        printf("%s", str_builder.str().c_str());
+        printf("%s", msg_buf);
 
         if(severity == FRACTAL_LOG_ABORT) {
             fractal_abort();
