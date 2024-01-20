@@ -5,6 +5,7 @@ set(
     "src/event_system.cpp"
     "src/fractal.cpp"
     "src/logging.cpp"
+    "src/module.cpp"
 )
 
 add_library(fsl STATIC ${FSL_SRC})
